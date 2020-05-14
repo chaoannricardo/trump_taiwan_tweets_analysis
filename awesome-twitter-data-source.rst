@@ -9,6 +9,8 @@ A list of Twitter datasets and related resources, released under `CC0 <https://c
 
 The license, when known, is given in {curly brackets}. Dataset size is given in [square brackets] when available.
 
+Reference GitHub: https://github.com/shaypal5/awesome-twitter-data/blob/master/README.rst
+
 
 .. contents:: Table of Contents
 
