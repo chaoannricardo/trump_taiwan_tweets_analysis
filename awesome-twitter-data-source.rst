@@ -1,7 +1,4 @@
 awesome-twitter-data
-
-Reference GitHub: https://github.com/shaypal5/awesome-twitter-data/blob/master/README.rst
-
 ####################
 |Awesome| |CC0|
 
