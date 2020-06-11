@@ -24,6 +24,7 @@ def doc2vec_search(row_index):
           font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
 
     # the nytimes was thrilled by obama talking to communist dictator castro and horrified by trump talking to the elected
+    # obama turned his back on taiwan
     for i, j in enumerate(similar_tweet_list):
         row_index += 1
         Label(main_frame, text=str(i+1) + ". " + j + "\n",
@@ -43,7 +44,7 @@ if __name__ == '__main__':
     note_font_style = tkFont.Font(family="微軟正黑體", size=8)
     blank_font_style = tkFont.Font(size=3)
     license_font_style = tkFont.Font(family="微軟正黑體", size=6)
-    win.title("Doc2Vec Emulator")
+    win.title("Similar Tweet Search (Trump Edition)")
     win.geometry("800x550+100+100")
     main_frame = Frame(win)
     main_frame.pack(side='top', fill=X, padx=20, pady=5)
@@ -51,7 +52,7 @@ if __name__ == '__main__':
 
     # title section
     row_index += 1
-    Label(main_frame, text="\nDoc2Vec Emulator\n ",
+    Label(main_frame, text="\n【Similar Tweet Search (Trump Edition)】\n ",
           font=title_font_style).grid(row=row_index, column=0, columnspan=3)
 
     search_var = StringVar()
@@ -60,7 +61,7 @@ if __name__ == '__main__':
           text="Please enter the tweet you would like to search：",
           font=note_font_style).grid(row=row_index, column=0, sticky='w')
 
-    # black list entry
+    # search entry
     search_entry = Entry(main_frame, textvariable=search_var, font=title_font_style, width=60).grid(
         row=row_index,
         column=1,
@@ -75,7 +76,6 @@ if __name__ == '__main__':
     Label(main_frame, text="                                                                                        "
                            "                                                                                                                             ",
           font=title_font_style).grid(row=row_index, column=0, columnspan=2)
-
 
 
     # activate the app
