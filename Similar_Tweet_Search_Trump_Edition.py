@@ -8,7 +8,7 @@ import pandas as pd
 def doc2vec_search(row_index):
     function_font_style = tkFont.Font(family="微軟正黑體", size=11, weight=tkFont.BOLD)
 
-    word_tokens = search_var.get().split(" ")
+    word_tokens = search_var.get().lower().split(" ")
     token_vector = model.infer_vector(word_tokens)
     sims = model.docvecs.most_similar([token_vector])
     similar_tweet_list = []
