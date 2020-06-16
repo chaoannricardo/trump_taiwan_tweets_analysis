@@ -1,8 +1,12 @@
 from tkinter import *
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 import gensim
+import io
 import tkinter.font as tkFont
 import numpy as np
 import pandas as pd
+import random
 
 
 def doc2vec_search(row_index):
@@ -31,11 +35,96 @@ def doc2vec_search(row_index):
           font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
 
 
-if __name__ == '__main__':
+def clean_up(row_index, row_count):
+    function_font_style = tkFont.Font(family="微軟正黑體", size=10, weight=tkFont.BOLD)
+    text_blank = " "
+    for i in range(130):
+        text_blank += " "
+    for i in range(6, row_count+1):
+        Label(main_frame, text=text_blank,
+              font=function_font_style).grid(row=i, column=0, columnspan=3, sticky='w')
 
+
+def similarity_search(row_index, last_row_count):
+    if last_row_count != 0:
+        clean_up(row_index, last_row_count)
+    function_font_style = tkFont.Font(family="微軟正黑體", size=10, weight=tkFont.BOLD)
+    tfidf_text_list = data.loc[:, 'stopwords_removed_retweet_text'].tolist()
+    for i, j in enumerate(tfidf_text_list):
+        if type(j) == np.nan:
+            tfidf_text_list[i] = ""
+        else:
+            tfidf_text_list[i] = str(j).lower()
+    vectorizer = TfidfVectorizer()
+    tfidf = vectorizer.fit_transform(tfidf_text_list)
+    random_data_row = random.randint(0, len(data))
+    test_data = [tfidf_text_list[random_data_row]]
+    test_data_vector = vectorizer.transform(test_data)
+    similarity = cosine_similarity(test_data_vector, tfidf).flatten().tolist()
+    sort_data = pd.DataFrame({
+        'index': [a for a in range(0, len(similarity))],
+        'similarity': [np.around(j, decimals=4) for i, j in enumerate(similarity)]
+    })
+    sort_data = sort_data.sort_values(by=['similarity'], ascending=False)
+    similar_index = sort_data.iloc[1:6, 0].tolist()
+
+    # original search function
+    word_tokens = data.loc[random_data_row, 'retweet_text'].lower().split(" ")
+    token_vector = model.infer_vector(word_tokens)
+    sims = model.docvecs.most_similar([token_vector])
+    similar_tweet_list = []
+    for i, j in enumerate(sims):
+        data_row = j[0]
+        print(data_row)
+        if i != 0:
+            text = "By " + str(data.loc[data_row, 'retweet_from']) + ": " + str(
+                data.loc[data_row, 'retweet_text']) + "\""
+            similar_tweet_list.append(text)
+
+    row_index += 1
+    Label(main_frame, text=str(data.loc[random_data_row, 'retweet_text'])[:120],
+          font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
+
+    row_index += 1
+    Label(main_frame, text="=====================================",
+          font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
+
+    row_index += 1
+    Label(main_frame, text="Doc2Vec:",
+          font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
+
+    for i, j in enumerate(similar_tweet_list):
+        row_index += 1
+        j = j[:120]
+        Label(main_frame, text=str(i + 1) + ". " + j,
+              font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
+        if i == 4:
+            break
+
+    row_index += 1
+    Label(main_frame, text="=====================================",
+          font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
+
+    row_index += 1
+    Label(main_frame, text="TF-IDF:",
+          font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
+
+    for i, j in enumerate(similar_index):
+        row_index += 1
+        Label(main_frame, text=str(i + 1) + ". By " + str(data.loc[int(j), 'retweet_from']) + ": " + str(data.loc[int(j), 'retweet_text'])[:120],
+              font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
+
+    last_row_count = row_index
+
+
+if __name__ == '__main__':
+    last_row_count = 0
     # gensim models and retweet data set up
     model = gensim.models.doc2vec.Doc2Vec.load('./gensim_models/doc2vec_model_retweet_new')
     data = pd.read_csv("./datasets/13_retweet_text_doc2vec_new.csv", sep='\t')
+    # stopwords_removed_retweet_text
+    tfidf_data = pd.read_csv("./datasets/15_retweet_text_tfidf_robert_version.csv", sep=',')
+    data.loc[:, 'stopwords_removed_retweet_text'] = tfidf_data.loc[:, 'stopwords_removed_retweet_text']
 
     # Basic Settings
     win = Tk()
@@ -71,6 +160,19 @@ if __name__ == '__main__':
     Button(main_frame, text="Let's go!!!!!", font=normal_font_style,
            bg='skyblue', width=10, height=1, command=lambda: doc2vec_search(row_index)).grid(row=row_index, column=3,
                                                                                                sticky='w')
+
+    # space row
+    row_index += 1
+    Label(main_frame, text="                                                                                        "
+                           "                                                                                                                             ",
+          font=blank_font_style).grid(row=row_index, column=0, columnspan=2)
+
+    # execute button: random search
+    row_index += 1
+    Button(main_frame, text="Random Search!!!!!", font=normal_font_style,
+           bg='skyblue', width=20, height=1, command=lambda: similarity_search(row_index, last_row_count)).grid(row=row_index, column=3,
+                                                                                             sticky='w')
+
     # space row
     row_index += 1
     Label(main_frame, text="                                                                                        "
