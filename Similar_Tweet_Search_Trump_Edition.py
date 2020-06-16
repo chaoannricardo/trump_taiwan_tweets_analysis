@@ -28,15 +28,50 @@ def doc2vec_search(row_index):
             similar_tweet_list.append(text)
 
     row_index += 2
-    Label(answer_frame, text="The most similar tweet is....",
+    Label(answer_frame, text="Doc2Vec:",
           font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
 
     # the nytimes was thrilled by obama talking to communist dictator castro and horrified by trump talking to the elected
     # obama turned his back on taiwan
     for i, j in enumerate(similar_tweet_list):
         row_index += 1
-        Label(answer_frame, text=str(i+1) + ". " + j + "\n",
+        Label(answer_frame, text=str(i+1) + ". " + j,
           font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
+        if i == 4:
+            break
+
+    tfidf_text_list = data.loc[:, 'stopwords_removed_retweet_text'].tolist()
+    for i, j in enumerate(tfidf_text_list):
+        if type(j) == np.nan:
+            tfidf_text_list[i] = ""
+        else:
+            tfidf_text_list[i] = str(j).lower()
+
+    vectorizer = TfidfVectorizer()
+    tfidf = vectorizer.fit_transform(tfidf_text_list)
+    test_data = [search_var.get().lower()]
+    test_data_vector = vectorizer.transform(test_data)
+    similarity = cosine_similarity(test_data_vector, tfidf).flatten().tolist()
+    sort_data = pd.DataFrame({
+        'index': [a for a in range(0, len(similarity))],
+        'similarity': [np.around(j, decimals=4) for i, j in enumerate(similarity)]
+    })
+    sort_data = sort_data.sort_values(by=['similarity'], ascending=False)
+    similar_index = sort_data.iloc[1:6, 0].tolist()
+
+    row_index += 1
+    Label(answer_frame, text="=====================================",
+          font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
+
+    row_index += 1
+    Label(answer_frame, text="TF-IDF:",
+          font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
+
+    for i, j in enumerate(similar_index):
+        row_index += 1
+        Label(answer_frame, text=str(i + 1) + ". By " + str(data.loc[int(j), 'retweet_from']) + ": " + str(
+            data.loc[int(j), 'retweet_text'])[:120],
+              font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
 
 
 def similarity_search(row_index, last_row_count):
