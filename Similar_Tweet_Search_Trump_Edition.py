@@ -10,6 +10,10 @@ import random
 
 
 def doc2vec_search(row_index):
+    # destroy former widgets inside answerframe
+    for widget in answer_frame.winfo_children():
+        widget.destroy()
+
     function_font_style = tkFont.Font(family="微軟正黑體", size=11, weight=tkFont.BOLD)
 
     word_tokens = search_var.get().lower().split(" ")
@@ -24,37 +28,30 @@ def doc2vec_search(row_index):
             similar_tweet_list.append(text)
 
     row_index += 2
-    Label(main_frame, text="The most similar tweet is....",
+    Label(answer_frame, text="The most similar tweet is....",
           font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
 
     # the nytimes was thrilled by obama talking to communist dictator castro and horrified by trump talking to the elected
     # obama turned his back on taiwan
     for i, j in enumerate(similar_tweet_list):
         row_index += 1
-        Label(main_frame, text=str(i+1) + ". " + j + "\n",
+        Label(answer_frame, text=str(i+1) + ". " + j + "\n",
           font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
 
 
-def clean_up(row_index, row_count):
-    function_font_style = tkFont.Font(family="微軟正黑體", size=10, weight=tkFont.BOLD)
-    text_blank = " "
-    for i in range(130):
-        text_blank += " "
-    for i in range(6, row_count+1):
-        Label(main_frame, text=text_blank,
-              font=function_font_style).grid(row=i, column=0, columnspan=3, sticky='w')
-
-
 def similarity_search(row_index, last_row_count):
-    if last_row_count != 0:
-        clean_up(row_index, last_row_count)
     function_font_style = tkFont.Font(family="微軟正黑體", size=10, weight=tkFont.BOLD)
+    # destroy former widgets inside answerframe
+    for widget in answer_frame.winfo_children():
+        widget.destroy()
+
     tfidf_text_list = data.loc[:, 'stopwords_removed_retweet_text'].tolist()
     for i, j in enumerate(tfidf_text_list):
         if type(j) == np.nan:
             tfidf_text_list[i] = ""
         else:
             tfidf_text_list[i] = str(j).lower()
+
     vectorizer = TfidfVectorizer()
     tfidf = vectorizer.fit_transform(tfidf_text_list)
     random_data_row = random.randint(0, len(data))
@@ -82,39 +79,38 @@ def similarity_search(row_index, last_row_count):
             similar_tweet_list.append(text)
 
     row_index += 1
-    Label(main_frame, text=str(data.loc[random_data_row, 'retweet_text'])[:120],
+    Label(answer_frame, text=str(data.loc[random_data_row, 'retweet_text'])[:120],
           font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
 
     row_index += 1
-    Label(main_frame, text="=====================================",
+    Label(answer_frame, text="=====================================",
           font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
 
     row_index += 1
-    Label(main_frame, text="Doc2Vec:",
+    Label(answer_frame, text="Doc2Vec:",
           font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
 
     for i, j in enumerate(similar_tweet_list):
         row_index += 1
         j = j[:120]
-        Label(main_frame, text=str(i + 1) + ". " + j,
+        Label(answer_frame, text=str(i + 1) + ". " + j,
               font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
         if i == 4:
             break
 
     row_index += 1
-    Label(main_frame, text="=====================================",
+    Label(answer_frame, text="=====================================",
           font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
 
     row_index += 1
-    Label(main_frame, text="TF-IDF:",
+    Label(answer_frame, text="TF-IDF:",
           font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
 
     for i, j in enumerate(similar_index):
         row_index += 1
-        Label(main_frame, text=str(i + 1) + ". By " + str(data.loc[int(j), 'retweet_from']) + ": " + str(data.loc[int(j), 'retweet_text'])[:120],
+        Label(answer_frame, text=str(i + 1) + ". By " + str(data.loc[int(j), 'retweet_from']) + ": " + str(data.loc[int(j), 'retweet_text'])[:120],
               font=function_font_style).grid(row=row_index, column=0, columnspan=3, sticky='w')
 
-    last_row_count = row_index
 
 
 if __name__ == '__main__':
@@ -137,6 +133,8 @@ if __name__ == '__main__':
     win.geometry("800x550+100+100")
     main_frame = Frame(win)
     main_frame.pack(side='top', fill=X, padx=20, pady=5)
+    answer_frame = Frame(win)
+    answer_frame.pack(side='top', fill=X, padx=20)
     row_index = 0
 
     # title section
