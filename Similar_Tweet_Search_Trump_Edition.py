@@ -164,7 +164,7 @@ if __name__ == '__main__':
     note_font_style = tkFont.Font(family="微軟正黑體", size=8)
     blank_font_style = tkFont.Font(size=3)
     license_font_style = tkFont.Font(family="微軟正黑體", size=6)
-    win.title("Similar Tweet Search (Trump Edition)")
+    win.title("Similar Tweet Search (Trump Edition) I love Jakey, Jakey is sooooooooooo handsome")
     win.geometry("800x550+100+100")
     main_frame = Frame(win)
     main_frame.pack(side='top', fill=X, padx=20, pady=5)
